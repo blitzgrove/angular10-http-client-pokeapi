@@ -5,7 +5,11 @@
   <input type="submit" value="Submit"/>
 </form>
 
-<ng-container *ngIf="pokemons.length > 0; else loading">
+<ng-container *ngIf="loadingPokemon">
+  Loading...
+</ng-container>
+
+<ng-container *ngIf="pokemons.length > 1">
   <table>
     <tr>
       <th>ID</th>
@@ -19,6 +23,3 @@
     </tr>
   </table>
 </ng-container>
-<ng-template #loading>
-  Loading...
-</ng-template>

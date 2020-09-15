@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PokemonApiService } from './services/pokemon-api.service';
 
 import { Observable, Subject } from 'rxjs';
-import { map, switchMap, takeUntil } from 'rxjs/operators';
+import { finalize, tap, map, switchMap, takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'my-app',
@@ -15,6 +15,7 @@ export class AppComponent implements OnInit, OnDestroy {
   pokemons = [];
   idForm: FormGroup;
   close$ = new Subject<any>();
+  loadingPokemon = false;
 
   constructor(
     private _formBuilder: FormBuilder,
@@ -58,8 +59,10 @@ export class AppComponent implements OnInit, OnDestroy {
     this.pokemons = [];
     let [offset, limit] = this.getOffsetLimit(this.idForm.value.start, this.idForm.value.end);
     this._pokemonApiService.getListOfPokemon(limit, offset).pipe(
+      tap(_ => this.loadingPokemon = true),
       map(pokemons => pokemons.map(response => response.url)),
       switchMap(urlList => this._pokemonApiService.getPokemonDetails(urlList)),
+      finalize(() => this.loadingPokemon = false),
       takeUntil(this.close$)
     ).subscribe(
       res => this.pokemons = this.pokemons.concat(res),
