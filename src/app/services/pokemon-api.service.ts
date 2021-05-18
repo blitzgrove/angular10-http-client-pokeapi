@@ -8,12 +8,11 @@ export const BASE_URL = 'https://pokeapi.co/api/v2';
 
 @Injectable()
 export class PokemonApiService {
+  constructor(private httpClient: HttpClient) {}
 
-  constructor(private httpClient: HttpClient) { }
-
-  public getListOfPokemon(limit: string, offset ?: string) {
+  public getListOfPokemon(limit: string, offset?: string) {
     const params = new HttpParams()
-      .set('offset', offset ? offset : '0')
+      .set('offset', offset || '0')
       .set('limit', limit);
     return this.httpClient
       .get<any>(`${BASE_URL}/pokemon`, { observe: 'response', params: params })
@@ -40,12 +39,17 @@ export class PokemonApiService {
   // Buffered requests
   public getPokemonDetails(urlList: Array<any>) {
     return from(urlList).pipe(
-      map(url => 
-        this.httpClient.get<any>(url).pipe(
-          map(detail => ({...detail, types: detail.types.map(type => type.type.name)}))
-        )
+      map(url =>
+        this.httpClient
+          .get<any>(url)
+          .pipe(
+            map(detail => ({
+              ...detail,
+              types: detail.types.map(type => type.type.name)
+            }))
+          )
       ),
-      bufferCount(6),         // <-- `n` parallel requests
+      bufferCount(6), // <-- `n` parallel requests
       concatMap(requests => forkJoin(requests))
     );
   }
