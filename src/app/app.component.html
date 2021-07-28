@@ -2,7 +2,7 @@
 <form [formGroup]="idForm" (ngSubmit)="getPokemonDetails()">
   <input type="number" placeholder="Start ID" formControlName="start" name="start"/>
   <input type="number" placeholder="End ID" formControlName="end" name="end"/>
-  <input type="submit" value="Submit"/>
+  <input style="cursor: pointer" type="submit" value="Submit"/>
 </form>
 
 <ng-container *ngIf="loadingPokemon">
@@ -16,7 +16,7 @@
       <th>Name</th>
       <th>Sprite</th>
     </tr>
-    <tr style="cursor:'pointer'" (click)="getType(pokemon)" *ngFor="let pokemon of pokemons">
+    <tr style="cursor: pointer" (click)="getType(pokemon)" *ngFor="let pokemon of pokemons">
       <td>{{ pokemon.id }}</td>
       <td>{{ pokemon.name | titlecase }}</td>
       <td><img [src]="pokemon.sprites.front_default"/></td>
