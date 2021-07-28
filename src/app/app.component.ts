@@ -3,13 +3,13 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { PokemonApiService } from './services/pokemon-api.service';
 
-import { Observable, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { finalize, tap, map, switchMap, takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'my-app',
   templateUrl: './app.component.html',
-  styleUrls: [ './app.component.css' ]
+  styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit, OnDestroy {
   pokemons = [];
@@ -19,33 +19,39 @@ export class AppComponent implements OnInit, OnDestroy {
 
   constructor(
     private _formBuilder: FormBuilder,
-    private _pokemonApiService: PokemonApiService) {
+    private _pokemonApiService: PokemonApiService
+  ) {
     this.createIdForm();
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   get start() {
     return this.idForm.controls['start'];
-  };
+  }
 
   get end() {
     return this.idForm.controls['end'];
-  };
+  }
 
   private createIdForm() {
     this.idForm = this._formBuilder.group({
-      start: [null, {
-        Validators: [ Validators.required ]
-      }],
-      end: [null, {
-        Validators: [
-          Validators.required,
-          Validators.maxLength(4), 
-          Validators.min(1)
-        ]
-      }]
+      start: [
+        null,
+        {
+          Validators: [Validators.required]
+        }
+      ],
+      end: [
+        null,
+        {
+          Validators: [
+            Validators.required,
+            Validators.maxLength(4),
+            Validators.min(1)
+          ]
+        }
+      ]
     });
   }
 
@@ -57,17 +63,25 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public getPokemonDetails() {
     this.pokemons = [];
-    let [offset, limit] = this.getOffsetLimit(this.idForm.value.start, this.idForm.value.end);
-    this._pokemonApiService.getListOfPokemon(limit, offset).pipe(
-      tap(_ => this.loadingPokemon = true),
-      map(pokemons => pokemons.map(response => response.url)),
-      switchMap(urlList => this._pokemonApiService.getPokemonDetails(urlList)),
-      finalize(() => this.loadingPokemon = false),
-      takeUntil(this.close$)
-    ).subscribe(
-      res => this.pokemons = this.pokemons.concat(res),
-      err => console.log(err)
+    let [offset, limit] = this.getOffsetLimit(
+      this.idForm.value.start,
+      this.idForm.value.end
     );
+    this._pokemonApiService
+      .getListOfPokemon(limit, offset)
+      .pipe(
+        tap(_ => (this.loadingPokemon = true)),
+        map(pokemons => pokemons.map(response => response.url)),
+        switchMap(urlList =>
+          this._pokemonApiService.getPokemonDetails(urlList)
+        ),
+        finalize(() => (this.loadingPokemon = false)),
+        takeUntil(this.close$)
+      )
+      .subscribe(
+        res => (this.pokemons = this.pokemons.concat(res)),
+        err => console.log(err)
+      );
   }
 
   public getType(pokemon: any) {
